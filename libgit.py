@@ -90,15 +90,18 @@ class GitObject():
     def init(self):
         pass
 
-class GitCommit():
+class GitCommit(GitObject):
+    fmt = b"commit"
     pass
 
 
-class GitTree():
+class GitTree(GitObject):
+    fmt = b"tree"
     pass
 
 
-class GitTag():
+class GitTag(GitObject):
+    fmt = b"tag"
     pass
 
 
@@ -109,7 +112,7 @@ class GitBlob(GitObject):
         return self.blobdata
     
     def deserialize(self, data):
-        self.blobdata = self.data
+        self.blobdata = data
 
 
 def object_read(repo: Repository, sha):
@@ -124,7 +127,7 @@ def object_read(repo: Repository, sha):
         space = raw.find(b" ")
         fmt   = raw[0:space]
 
-        null_char = raw.find("\x00", space)
+        null_char = raw.find(b"\x00", space)
         size = int(raw[space:null_char].decode("ascii"))
 
         if size != len(raw) - null_char - 1:
@@ -280,6 +283,7 @@ def cmd_hash_object(args):
 
     with open(args.path, "rb") as fd:
         sha = object_hash(fd, args.type.encode(), repo)
+        print(sha)
 
 def main(argv=sys.argv[1:]):
     args = argparser.parse_args(argv)
